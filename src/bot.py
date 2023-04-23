@@ -73,6 +73,24 @@ def spend(update, context):
         except IndexError:
             return None
 
+    def safe_amount_get(amount, slang):
+        slang = slang.lower()
+
+        def num(s):
+            try:
+                return int(s)
+            except ValueError:
+                return float(s)
+
+        if slang in str(amount).lower():
+            amount = num(amount.split(slang)[0])
+            if slang == "k":
+                amount = num(amount * 1000)
+            if slang == "m":
+                amount = num(amount * 1000 * 1000)
+
+        return amount
+
     message = update.message.text
     if "," not in message:
         message_data = message.split(" ")
@@ -87,6 +105,9 @@ def spend(update, context):
         return
 
     amount = safe_list_get(message_data, 0)
+    amount = safe_amount_get(amount, "K")
+    amount = safe_amount_get(amount, "M")
+
     description = safe_list_get(message_data, 1)
     category = safe_list_get(message_data, 2)
     budget = safe_list_get(message_data, 3)
